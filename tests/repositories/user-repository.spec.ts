@@ -8,6 +8,15 @@ import { User } from '../../src/models/User';
 import { UserRepository } from '../../src/repositories/user-repository';
 import { knex } from '../../src/database';
 
+const makeFakeUser = (): User => {
+  return {
+    id: randomUUID(),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+  };
+};
+
 describe('UserRepository', () => {
   beforeEach(() => {
     execSync('npm run knex migrate:latest');
@@ -18,17 +27,26 @@ describe('UserRepository', () => {
   });
 
   it('Should create an user on database successfully', async () => {
-    const user: User = {
-      id: randomUUID(),
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    };
-
+    const fakeUser = makeFakeUser();
     const sut = new UserRepository();
-    await sut.createUser(user);
+    await sut.createUser(fakeUser);
 
     const insertedUser = await knex('users').select().first();
-    expect(insertedUser).toEqual(expect.objectContaining(user));
+    expect(insertedUser).toEqual(
+      expect.objectContaining({
+        name: fakeUser.name,
+        email: fakeUser.email,
+      }),
+    );
+  });
+
+  it('Should store user password with a hashed password', async () => {
+    const fakeUser = makeFakeUser();
+    const sut = new UserRepository();
+
+    await sut.createUser(fakeUser);
+
+    const insertedUser = await knex('users').select().first();
+    expect(insertedUser?.password).not.toEqual(fakeUser.password);
   });
 });
