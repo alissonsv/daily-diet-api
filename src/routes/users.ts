@@ -6,15 +6,19 @@ import { UserRepository } from '../repositories/user-repository';
 import { JWT } from '../utils/jwt';
 
 export async function usersRoutes(app: FastifyInstance) {
-  app.post('/', { schema: {} }, async (request, reply) => {
+  app.post('/', async (request, reply) => {
     const userSchema = z.object({
       name: z.string(),
       password: z.string(),
       email: z.string().email(),
     });
 
-    const { name, password, email } = userSchema.parse(request.body);
+    const parsedUser = userSchema.safeParse(request.body);
+    if (!parsedUser.success) {
+      return reply.status(400).send({ error: 'Parametros invalidos!' });
+    }
 
+    const { name, password, email } = parsedUser.data;
     const user: User = {
       id: randomUUID(),
       name,
@@ -26,6 +30,6 @@ export async function usersRoutes(app: FastifyInstance) {
     await userRepository.createUser(user);
 
     const token = JWT.createToken({ userId: user.id });
-    reply.status(201).send({ token });
+    return reply.status(201).send({ token });
   });
 }

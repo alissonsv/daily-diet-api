@@ -27,4 +27,14 @@ describe('Users Routes', () => {
 
     expect(response.body).toHaveProperty('token');
   });
+
+  it('Should return 400 if request with missing params', async () => {
+    await request(app.server)
+      .post('/users')
+      .send({
+        name: faker.person.fullName(),
+        password: faker.internet.password(),
+      })
+      .expect(400);
+  });
 });
