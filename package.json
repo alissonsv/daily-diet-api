@@ -7,11 +7,12 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "knex": "node --import tsx ./node_modules/.bin/knex",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "author": "Alisson Vargas <contato@alissonsv.com> (https://alissonsv.com)",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/node": "^20.14.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -19,9 +20,14 @@
     "prettier": "^3.3.0",
     "tsx": "^4.11.2",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.12.0"
+    "typescript-eslint": "^7.12.0",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
-    "fastify": "^4.27.0"
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "knex": "^3.1.0",
+    "sqlite3": "^5.1.7",
+    "zod": "^3.23.8"
   }
 }
