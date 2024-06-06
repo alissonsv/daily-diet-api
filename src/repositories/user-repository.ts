@@ -11,4 +11,12 @@ export class UserRepository {
       password: hashedPassword,
     });
   }
+
+  async readUserByEmail(email: string): Promise<User | undefined> {
+    return knex('users')
+      .where({
+        email,
+      })
+      .first();
+  }
 }
