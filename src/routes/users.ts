@@ -1,7 +1,9 @@
+import { randomUUID } from 'node:crypto';
+
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+
 import { User } from '../models/User';
-import { randomUUID } from 'crypto';
 import { UserRepository } from '../repositories/user-repository';
 import { JWT } from '../utils/jwt';
 
