@@ -1,21 +1,10 @@
-import { randomUUID } from 'node:crypto';
 import { execSync } from 'node:child_process';
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { faker } from '@faker-js/faker';
 
-import { User } from '../../src/models/User';
 import { UserRepository } from '../../src/repositories/user-repository';
 import { knex } from '../../src/database';
-
-const makeFakeUser = (): User => {
-  return {
-    id: randomUUID(),
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  };
-};
+import { makeFakeUser } from '../mocks/user';
 
 describe('UserRepository', () => {
   beforeEach(() => {
