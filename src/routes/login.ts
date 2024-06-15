@@ -7,13 +7,19 @@ import { PasswordHash } from '../utils/password-hash';
 export async function loginRoutes(app: FastifyInstance) {
   app.post('/', async (request, reply) => {
     const loginSchema = z.object({
-      email: z.string().email(),
-      password: z.string(),
+      email: z
+        .string({ required_error: '"email" deve ser informado!' })
+        .email({ message: '"email" invalido!' }),
+      password: z.string({ required_error: '"password" deve ser informado!' }),
     });
 
     const parsedLogin = loginSchema.safeParse(request.body);
     if (!parsedLogin.success) {
-      return reply.status(400).send({ error: 'Parametros invalidos!' });
+      const errorsList = parsedLogin.error.errors.map((error) => error.message);
+
+      return reply
+        .status(400)
+        .send({ error: `Parametros invalidos: ${errorsList.join(',')}` });
     }
 
     const { email, password } = parsedLogin.data;

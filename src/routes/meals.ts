@@ -10,15 +10,26 @@ import { MealRepository } from '../repositories/meal-repository';
 export async function mealsRoutes(app: FastifyInstance) {
   app.post('/', { preHandler: [checkUserToken] }, async (request, reply) => {
     const mealSchema = z.object({
-      name: z.string(),
+      name: z.string({ required_error: '"name" deve ser informado' }),
       description: z.string().optional(),
-      datetime: z.string().datetime(),
-      within_diet: z.boolean(),
+      datetime: z
+        .string({ required_error: '"datetime" deve ser informado' })
+        .datetime({
+          message: '"datetime" string invalido! Deve ser em formato UTC.',
+        }),
+      within_diet: z.boolean({
+        required_error: '"within_diet" deve ser informado',
+        message: '"within_diet" boolean invalido!',
+      }),
     });
 
     const parsedMeal = mealSchema.safeParse(request.body);
     if (!parsedMeal.success) {
-      return reply.status(400).send({ error: 'Parametros invalidos!' });
+      const errorsList = parsedMeal.error.errors.map((error) => error.message);
+
+      return reply
+        .status(400)
+        .send({ error: `Parametros invalidos: ${errorsList.join(',')}` });
     }
 
     const { name, description, datetime, within_diet } = parsedMeal.data;

@@ -10,14 +10,20 @@ import { JWT } from '../utils/jwt';
 export async function usersRoutes(app: FastifyInstance) {
   app.post('/', async (request, reply) => {
     const userSchema = z.object({
-      name: z.string(),
-      password: z.string(),
-      email: z.string().email(),
+      name: z.string({ required_error: '"name" deve ser informado!' }),
+      password: z.string({ required_error: '"password" deve ser informado!' }),
+      email: z
+        .string({ required_error: '"email" deve ser informado!' })
+        .email({ message: '"email" invalido!' }),
     });
 
     const parsedUser = userSchema.safeParse(request.body);
     if (!parsedUser.success) {
-      return reply.status(400).send({ error: 'Parametros invalidos!' });
+      const errorsList = parsedUser.error.errors.map((error) => error.message);
+
+      return reply
+        .status(400)
+        .send({ error: `Parametros invalidos: ${errorsList.join(',')}` });
     }
 
     const { name, password, email } = parsedUser.data;
