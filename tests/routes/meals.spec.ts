@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { afterAll, beforeAll, describe, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 
 import { faker } from '@faker-js/faker';
@@ -160,6 +160,28 @@ describe('Meals Routes', () => {
         .auth(fakeToken, { type: 'bearer' })
         .send({ name: faker.lorem.word() })
         .expect(404);
+    });
+  });
+
+  describe('GET /meals - select all meals of an user', () => {
+    it('Should return a list with all meals of an user', async () => {
+      const fakeMeal1 = makeFakeMeal();
+      const fakeMeal2 = makeFakeMeal();
+      fakeMeal1.user_id = fakeUserId;
+      fakeMeal2.user_id = fakeUserId;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'getMealsOfUser',
+      ).mockResolvedValueOnce([fakeMeal1, fakeMeal2]);
+
+      const response = await request(app.server)
+        .get('/meals')
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.meals).toHaveLength(2);
     });
   });
 });

@@ -17,4 +17,8 @@ export class MealRepository {
   async deleteMealById(mealId: string) {
     await knex('meals').where({ id: mealId }).delete();
   }
+
+  async getMealsOfUser(user_id: string) {
+    return knex('meals').where({ user_id }).select();
+  }
 }

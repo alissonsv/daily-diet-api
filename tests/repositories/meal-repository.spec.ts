@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { knex } from '../../src/database';
 import { MealRepository } from '../../src/repositories/meal-repository';
 import { makeFakeMeal } from '../mocks/meal';
+import { randomUUID } from 'node:crypto';
 
 describe('Meal Repository', () => {
   beforeEach(async () => {
@@ -82,5 +83,28 @@ describe('Meal Repository', () => {
       .where({ id: fakeMeal.id })
       .first();
     expect(deletedMeal).toBeUndefined();
+  });
+
+  it('Should return a list with all meals of an user', async () => {
+    const sut = new MealRepository();
+    const fakeUserId = randomUUID();
+
+    const fakeMeal1 = makeFakeMeal();
+    const fakeMeal2 = makeFakeMeal();
+    fakeMeal1.user_id = fakeUserId;
+    fakeMeal2.user_id = fakeUserId;
+
+    await knex('meals').insert([fakeMeal1, fakeMeal2]);
+
+    const response = await sut.getMealsOfUser(fakeUserId);
+
+    expect(response).lengthOf(2);
+  });
+
+  it('Should return a empty list if an user has no inserted meals', async () => {
+    const sut = new MealRepository();
+
+    const response = await sut.getMealsOfUser(randomUUID());
+    expect(response).lengthOf(0);
   });
 });

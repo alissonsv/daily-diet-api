@@ -94,4 +94,13 @@ export async function mealsRoutes(app: FastifyInstance) {
       await mealRepository.deleteMealById(mealToBeDeleted.id);
     },
   );
+
+  app.get('/', { preHandler: [checkUserToken] }, async (request, reply) => {
+    const mealRepository = new MealRepository();
+    const meals = await mealRepository.getMealsOfUser(request.userId!);
+
+    return reply.status(200).send({
+      meals,
+    });
+  });
 }
