@@ -68,4 +68,19 @@ describe('Meal Repository', () => {
       }),
     );
   });
+
+  it('Should delete a meal by its id', async () => {
+    const sut = new MealRepository();
+    const fakeMeal = makeFakeMeal();
+
+    await knex('meals').insert(fakeMeal);
+
+    await sut.deleteMealById(fakeMeal.id);
+
+    const deletedMeal = await knex('meals')
+      .select()
+      .where({ id: fakeMeal.id })
+      .first();
+    expect(deletedMeal).toBeUndefined();
+  });
 });

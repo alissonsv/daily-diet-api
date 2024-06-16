@@ -13,4 +13,8 @@ export class MealRepository {
   async updateMealById(meal: Meal, mealId: string) {
     await knex('meals').where({ id: mealId }).update(meal);
   }
+
+  async deleteMealById(mealId: string) {
+    await knex('meals').where({ id: mealId }).delete();
+  }
 }

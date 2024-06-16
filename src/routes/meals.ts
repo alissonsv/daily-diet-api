@@ -76,4 +76,22 @@ export async function mealsRoutes(app: FastifyInstance) {
       return reply.send();
     },
   );
+
+  app.delete(
+    '/:id',
+    { preHandler: [checkUserToken] },
+    async (request, reply) => {
+      const paramsSchema = z.object({ id: z.string() });
+      const { id } = paramsSchema.parse(request.params);
+
+      const mealRepository = new MealRepository();
+      const mealToBeDeleted = await mealRepository.searchMealById(id);
+
+      if (!mealToBeDeleted || mealToBeDeleted.user_id !== request.userId) {
+        return reply.status(404).send();
+      }
+
+      await mealRepository.deleteMealById(mealToBeDeleted.id);
+    },
+  );
 }
