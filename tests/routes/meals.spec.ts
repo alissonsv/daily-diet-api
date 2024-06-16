@@ -7,6 +7,7 @@ import { faker } from '@faker-js/faker';
 import { app } from '../../src/app';
 import { JWT } from '../../src/utils/jwt';
 import { MealRepository } from '../../src/repositories/meal-repository';
+import { makeFakeMeal } from '../mocks/meal';
 
 function createFakeRequestMealData() {
   return {
@@ -17,7 +18,8 @@ function createFakeRequestMealData() {
   };
 }
 
-const fakeToken = JWT.createToken({ userId: randomUUID() });
+const fakeUserId = randomUUID();
+const fakeToken = JWT.createToken({ userId: fakeUserId });
 
 describe('Meals Routes', () => {
   beforeAll(async () => {
@@ -59,5 +61,47 @@ describe('Meals Routes', () => {
       .auth(fakeToken, { type: 'bearer' })
       .send({ ...fakeMealData, within_diet: undefined })
       .expect(400);
+  });
+
+  it('Should update a meal and return 200', async () => {
+    const fakeMeal = makeFakeMeal();
+    vi.spyOn(MealRepository.prototype, 'searchMealById').mockResolvedValueOnce({
+      ...fakeMeal,
+      user_id: fakeUserId,
+    });
+    vi.spyOn(
+      MealRepository.prototype,
+      'updateMealById',
+    ).mockResolvedValueOnce();
+
+    await request(app.server)
+      .patch(`/meals/${faker.string.uuid()}`)
+      .auth(fakeToken, { type: 'bearer' })
+      .send({ name: faker.lorem.word() })
+      .expect(200);
+  });
+
+  it('Should return 404 if tries to update a meal and it does not exists', async () => {
+    vi.spyOn(MealRepository.prototype, 'searchMealById').mockResolvedValueOnce(
+      undefined,
+    );
+    await request(app.server)
+      .patch(`/meals/${faker.string.uuid()}`)
+      .auth(fakeToken, { type: 'bearer' })
+      .send({ name: faker.lorem.word() })
+      .expect(404);
+  });
+
+  it('Should return 404 if a user tries to update a meal that does not belong to him', async () => {
+    const fakeMeal = makeFakeMeal();
+    vi.spyOn(MealRepository.prototype, 'searchMealById').mockResolvedValueOnce(
+      fakeMeal,
+    );
+
+    await request(app.server)
+      .patch(`/meals/${faker.string.uuid()}`)
+      .auth(fakeToken, { type: 'bearer' })
+      .send({ name: faker.lorem.word() })
+      .expect(404);
   });
 });

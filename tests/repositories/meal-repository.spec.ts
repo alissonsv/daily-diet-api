@@ -1,38 +1,20 @@
 import { execSync } from 'node:child_process';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { makeFakeUser } from '../mocks/user';
 import { knex } from '../../src/database';
-import { Meal } from '../../src/models/Meal';
-import { randomUUID } from 'node:crypto';
-import { faker } from '@faker-js/faker';
 import { MealRepository } from '../../src/repositories/meal-repository';
-
-const fakeUser = makeFakeUser();
-
-const makeFakeMeal = (): Meal => {
-  return {
-    id: randomUUID(),
-    user_id: fakeUser.id,
-    name: faker.lorem.words({ min: 1, max: 3 }),
-    description: faker.lorem.words({ min: 3, max: 10 }),
-    datetime: faker.date.recent(),
-    within_diet: Math.random() < 0.5,
-  };
-};
+import { makeFakeMeal } from '../mocks/meal';
 
 describe('Meal Repository', () => {
   beforeEach(async () => {
     execSync('npm run knex migrate:latest');
-
-    await knex('users').insert(fakeUser);
   });
 
   afterEach(() => {
     execSync('npm run knex migrate:rollback --all');
   });
 
-  it.only('Should create a meal successfully', async () => {
+  it('Should create a meal successfully', async () => {
     const sut = new MealRepository();
 
     const fakeMeal = makeFakeMeal();
@@ -47,5 +29,43 @@ describe('Meal Repository', () => {
       datetime: fakeMeal.datetime.getTime(),
       within_diet: Number(fakeMeal.within_diet),
     });
+  });
+
+  it('Should update a meal successfully', async () => {
+    const sut = new MealRepository();
+    const fakeMeal = makeFakeMeal();
+    await knex('meals').insert(fakeMeal);
+
+    const updatedFakeMeal = {
+      ...fakeMeal,
+      name: 'a new random name for testing',
+    };
+
+    await sut.updateMealById(updatedFakeMeal, fakeMeal.id);
+
+    const updatedMeal = await knex('meals').select().first();
+
+    expect(updatedMeal).toEqual(
+      expect.objectContaining({
+        id: fakeMeal.id,
+        name: updatedFakeMeal.name,
+      }),
+    );
+  });
+
+  it('Should return a meal by its id', async () => {
+    const sut = new MealRepository();
+    const fakeMeal = makeFakeMeal();
+
+    await knex('meals').insert(fakeMeal);
+    const response = await sut.searchMealById(fakeMeal.id);
+
+    expect(response).toEqual(
+      expect.objectContaining({
+        id: fakeMeal.id,
+        name: fakeMeal.name,
+        description: fakeMeal.description,
+      }),
+    );
   });
 });
