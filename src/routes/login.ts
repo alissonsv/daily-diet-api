@@ -1,28 +1,24 @@
 import { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+
 import { JWT } from '../utils/jwt';
 import { UserRepository } from '../repositories/user-repository';
 import { PasswordHash } from '../utils/password-hash';
+import { validateLoginSchema } from './schemas/login-schema';
 
 export async function loginRoutes(app: FastifyInstance) {
   app.post('/', async (request, reply) => {
-    const loginSchema = z.object({
-      email: z
-        .string({ required_error: '"email" deve ser informado!' })
-        .email({ message: '"email" invalido!' }),
-      password: z.string({ required_error: '"password" deve ser informado!' }),
-    });
-
-    const parsedLogin = loginSchema.safeParse(request.body);
-    if (!parsedLogin.success) {
-      const errorsList = parsedLogin.error.errors.map((error) => error.message);
-
-      return reply
-        .status(400)
-        .send({ error: `Parametros invalidos: ${errorsList.join(',')}` });
+    let parsedLogin;
+    try {
+      parsedLogin = validateLoginSchema(request);
+    } catch (error) {
+      if (error instanceof Error) {
+        return reply.status(400).send({ error: error.message });
+      } else {
+        console.error(error);
+        return reply.status(500).send();
+      }
     }
-
-    const { email, password } = parsedLogin.data;
+    const { email, password } = parsedLogin;
 
     const userRepository = new UserRepository();
     const user = await userRepository.readUserByEmail(email);
