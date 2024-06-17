@@ -184,4 +184,58 @@ describe('Meals Routes', () => {
       expect(response.body.meals).toHaveLength(2);
     });
   });
+
+  describe('GET /meals/:id - select meal by id', () => {
+    it('Should return 200 and a meal', async () => {
+      const fakeMeal = makeFakeMeal();
+      fakeMeal.user_id = fakeUserId;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'searchMealById',
+      ).mockResolvedValueOnce(fakeMeal);
+
+      const response = await request(app.server)
+        .get(`/meals/${fakeMeal.id}`)
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.meal).toEqual(
+        expect.objectContaining({
+          id: fakeMeal.id,
+          name: fakeMeal.name,
+          within_diet: fakeMeal.within_diet,
+        }),
+      );
+    });
+
+    it('Should return 404 if a meal was not found', async () => {
+      vi.spyOn(
+        MealRepository.prototype,
+        'searchMealById',
+      ).mockResolvedValueOnce(undefined);
+
+      await request(app.server)
+        .get(`/meals/${randomUUID()}`)
+        .auth(fakeToken, { type: 'bearer' })
+        .send()
+        .expect(404);
+    });
+
+    it('Should return 404 if a meal does not belong to user', async () => {
+      const fakeMeal = makeFakeMeal();
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'searchMealById',
+      ).mockResolvedValueOnce(fakeMeal);
+
+      await request(app.server)
+        .get(`/meals/${fakeMeal.id}`)
+        .auth(fakeToken, { type: 'bearer' })
+        .send()
+        .expect(404);
+    });
+  });
 });

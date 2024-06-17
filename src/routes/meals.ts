@@ -103,4 +103,24 @@ export async function mealsRoutes(app: FastifyInstance) {
       meals,
     });
   });
+
+  app.get(
+    '/:meal_id',
+    { preHandler: [checkUserToken] },
+    async (request, reply) => {
+      const paramsSchema = z.object({ meal_id: z.string() });
+      const { meal_id } = paramsSchema.parse(request.params);
+
+      const mealRepository = new MealRepository();
+      const meal = await mealRepository.searchMealById(meal_id);
+
+      if (!meal || meal.user_id !== request.userId) {
+        return reply.status(404).send();
+      }
+
+      return reply.status(200).send({
+        meal,
+      });
+    },
+  );
 }
