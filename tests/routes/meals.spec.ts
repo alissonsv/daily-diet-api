@@ -185,6 +185,110 @@ describe('Meals Routes', () => {
     });
   });
 
+  describe('GET /meals/summary - return a summary of meals', () => {
+    it('Should return an object containing the total of meals of an user', async () => {
+      const fakeMeal1 = makeFakeMeal();
+      const fakeMeal2 = makeFakeMeal();
+      fakeMeal1.user_id = fakeUserId;
+      fakeMeal2.user_id = fakeUserId;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'getMealsOfUser',
+      ).mockResolvedValueOnce([fakeMeal1, fakeMeal2]);
+
+      const response = await request(app.server)
+        .get('/meals/summary')
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          total: 2,
+        }),
+      );
+    });
+
+    it('Should return an object containing the total of meals within the diet', async () => {
+      const fakeMeal1 = makeFakeMeal();
+      const fakeMeal2 = makeFakeMeal();
+      fakeMeal1.user_id = fakeUserId;
+      fakeMeal1.within_diet = true;
+      fakeMeal2.user_id = fakeUserId;
+      fakeMeal2.within_diet = false;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'getMealsOfUser',
+      ).mockResolvedValueOnce([fakeMeal1, fakeMeal2]);
+
+      const response = await request(app.server)
+        .get('/meals/summary')
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          totalWithinDiet: 1,
+        }),
+      );
+    });
+
+    it('Should return an object containing the total of meals outside the diet', async () => {
+      const fakeMeal1 = makeFakeMeal();
+      const fakeMeal2 = makeFakeMeal();
+      fakeMeal1.user_id = fakeUserId;
+      fakeMeal1.within_diet = true;
+      fakeMeal2.user_id = fakeUserId;
+      fakeMeal2.within_diet = false;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'getMealsOfUser',
+      ).mockResolvedValueOnce([fakeMeal1, fakeMeal2]);
+
+      const response = await request(app.server)
+        .get('/meals/summary')
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          totalOutsideDiet: 1,
+        }),
+      );
+    });
+
+    it('Should return an object containing the best streak within diet', async () => {
+      const fakeMeal1 = makeFakeMeal();
+      const fakeMeal2 = makeFakeMeal();
+      fakeMeal1.user_id = fakeUserId;
+      fakeMeal1.within_diet = true;
+      fakeMeal2.user_id = fakeUserId;
+      fakeMeal2.within_diet = true;
+
+      vi.spyOn(
+        MealRepository.prototype,
+        'getMealsOfUser',
+      ).mockResolvedValueOnce([fakeMeal1, fakeMeal2]);
+
+      const response = await request(app.server)
+        .get('/meals/summary')
+        .auth(fakeToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          bestStreak: 2,
+        }),
+      );
+    });
+  });
+
   describe('GET /meals/:id - select meal by id', () => {
     it('Should return 200 and a meal', async () => {
       const fakeMeal = makeFakeMeal();

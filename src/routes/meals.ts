@@ -104,6 +104,39 @@ export async function mealsRoutes(app: FastifyInstance) {
     });
   });
 
+  app.get('/summary', { preHandler: [checkUserToken] }, async (request) => {
+    const mealRepository = new MealRepository();
+    const meals = await mealRepository.getMealsOfUser(request.userId!);
+
+    const totalWithinDiet = meals.reduce((count, meal) => {
+      return meal.within_diet ? count + 1 : count;
+    }, 0);
+
+    const totalOutsideDiet = meals.reduce((count, meal) => {
+      return meal.within_diet ? count : count + 1;
+    }, 0);
+
+    let bestStreak = 0;
+    let currentStreak = 0;
+    for (const meal of meals) {
+      if (meal.within_diet) {
+        currentStreak++;
+        if (currentStreak > bestStreak) {
+          bestStreak = currentStreak;
+        }
+      } else {
+        currentStreak = 0;
+      }
+    }
+
+    return {
+      total: meals.length,
+      totalWithinDiet,
+      totalOutsideDiet,
+      bestStreak,
+    };
+  });
+
   app.get(
     '/:meal_id',
     { preHandler: [checkUserToken] },
