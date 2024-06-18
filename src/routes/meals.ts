@@ -99,8 +99,14 @@ export async function mealsRoutes(app: FastifyInstance) {
     const mealRepository = new MealRepository();
     const meals = await mealRepository.getMealsOfUser(request.userId!);
 
+    const formattedMeals = meals.map((meal) => ({
+      ...meal,
+      datetime: new Date(meal.datetime).toISOString(),
+      within_diet: Boolean(meal.within_diet),
+    }));
+
     return reply.status(200).send({
-      meals,
+      meals: formattedMeals,
     });
   });
 
@@ -151,8 +157,14 @@ export async function mealsRoutes(app: FastifyInstance) {
         return reply.status(404).send();
       }
 
+      const formattedMeal = {
+        ...meal,
+        datetime: new Date(meal.datetime).toISOString(),
+        within_diet: Boolean(meal.within_diet),
+      };
+
       return reply.status(200).send({
-        meal,
+        meal: formattedMeal,
       });
     },
   );
