@@ -44,3 +44,6 @@ npm run start
     - [X] Melhor sequência de refeições dentro da dieta
 - [X] O usuário só pode visualizar, editar e apagar as refeições o qual ele criou
 
+## Rotas:
+
+Após rodar a aplicação, acesse [http://localhost:3333/docs](http://localhost:3333/docs) para acessar o Swagger
