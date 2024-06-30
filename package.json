@@ -31,6 +31,8 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^4.0.0",
     "argon2": "^0.40.3",
     "dotenv": "^16.4.5",
     "fastify": "^4.27.0",
