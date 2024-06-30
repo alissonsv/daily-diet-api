@@ -5,8 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "rm -rf ./dist && tsup src knexfile.ts db/migrations/**.ts",
     "dev": "tsx watch src/server.ts",
     "knex": "node --import tsx ./node_modules/.bin/knex",
+    "start": "node dist/src/server.cjs",
     "test": "vitest"
   },
   "author": "Alisson Vargas <contato@alissonsv.com> (https://alissonsv.com)",
@@ -21,6 +23,8 @@
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.3.0",
     "supertest": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.1.0",
     "tsx": "^4.11.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.12.0",
