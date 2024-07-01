@@ -39,6 +39,15 @@ describe('Check User Token Middleware', () => {
     await request(app.server).get('/test/middleware/token').expect(401);
   });
 
+  it('Should return 401 if a malformed token is informed', async () => {
+    const validToken = JWT.createToken({ userId: '123' });
+
+    await request(app.server)
+      .get('/test/middleware/token')
+      .set('Authorization', `Anything ${validToken}`)
+      .expect(401);
+  });
+
   it('Should return 401 if an invalid token is informed', async () => {
     const invalidToken =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QiLCJpYXQiOjE1MTYyMzkwMjJ9.tRF6jrkFnCfv6ksyU-JwVq0xsW3SR3y5cNueSTdHdAg';
