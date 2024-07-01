@@ -1,8 +1,28 @@
 # Daily Diet API
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 > API para controle de dieta diária.
 
-### Regras da aplicação
+## Como rodar local
+
+### Com Docker compose:
+```bash
+cp .env.example .env
+docker compose up
+```
+
+### Com Node.JS:
+```bash
+cp .env.example .env
+npm install
+npm run build
+npm run knex -- migrate:latest
+npm run start
+```
+
+## Regras da aplicação
 
 - [X] Deve ser possível criar um usuário
 - [X] Deve ser possível identificar o usuário entre as requisições
@@ -24,3 +44,6 @@
     - [X] Melhor sequência de refeições dentro da dieta
 - [X] O usuário só pode visualizar, editar e apagar as refeições o qual ele criou
 
+## Rotas:
+
+Após rodar a aplicação, acesse [http://localhost:3333/docs](http://localhost:3333/docs) para acessar o Swagger

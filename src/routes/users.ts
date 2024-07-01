@@ -6,9 +6,10 @@ import { User } from '../models/User';
 import { UserRepository } from '../repositories/user-repository';
 import { JWT } from '../utils/jwt';
 import { validateUserSchema } from './schemas/user-schema';
+import { userSwaggerSchema } from './swagger-schema/users';
 
 export async function usersRoutes(app: FastifyInstance) {
-  app.post('/', async (request, reply) => {
+  app.post('/', { schema: userSwaggerSchema }, async (request, reply) => {
     let parsedUser;
     try {
       parsedUser = validateUserSchema(request);
