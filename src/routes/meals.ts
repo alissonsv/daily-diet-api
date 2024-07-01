@@ -6,8 +6,8 @@ import { Meal } from '../models/Meal';
 import { checkUserToken } from '../middlewares/check-user-token';
 import { MealRepository } from '../repositories/meal-repository';
 import {
+  parseUpdateMealSchema,
   validateCreateMealSchema,
-  validateUpdateMealSchema,
 } from './schemas/meal-schema';
 import { z } from 'zod';
 import {
@@ -56,17 +56,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       const paramSchema = z.object({ id: z.string().uuid() });
       const { id } = paramSchema.parse(request.params);
 
-      let parsedMeal;
-      try {
-        parsedMeal = validateUpdateMealSchema(request);
-      } catch (error) {
-        if (error instanceof Error) {
-          return reply.status(400).send({ error: error.message });
-        } else {
-          console.error(error);
-          return reply.status(500).send();
-        }
-      }
+      const parsedMeal = parseUpdateMealSchema(request);
 
       const mealRepository = new MealRepository();
       const mealToBeUpdated = await mealRepository.searchMealById(id);

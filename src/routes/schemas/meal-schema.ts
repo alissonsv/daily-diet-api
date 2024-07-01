@@ -22,15 +22,8 @@ export const validateCreateMealSchema = (request: FastifyRequest) => {
   return parsedMeal.data;
 };
 
-export const validateUpdateMealSchema = (request: FastifyRequest) => {
+export const parseUpdateMealSchema = (request: FastifyRequest) => {
   const partialMealSchema = mealSchema.partial();
 
-  const parsedMeal = partialMealSchema.safeParse(request.body);
-  if (!parsedMeal.success) {
-    const errorsList = parsedMeal.error.errors.map((error) => error.message);
-
-    throw new Error(`Parametros invalidos: ${errorsList.join(',')}`);
-  }
-
-  return parsedMeal.data;
+  return partialMealSchema.parse(request.body);
 };
