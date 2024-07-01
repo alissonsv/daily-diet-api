@@ -24,12 +24,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       try {
         parsedMeal = validateCreateMealSchema(request);
       } catch (error) {
-        if (error instanceof Error) {
-          return reply.status(400).send({ error: error.message });
-        } else {
-          console.error(error);
-          return reply.status(500).send();
-        }
+        return reply.status(400).send({ error: (error as Error).message });
       }
       const { name, description, datetime, within_diet } = parsedMeal;
 

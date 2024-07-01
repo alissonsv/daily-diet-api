@@ -42,6 +42,15 @@ describe('Login Route', () => {
     expect(response.body).toHaveProperty('token');
   });
 
+  it('Should return 400 if request with missing params', async () => {
+    await request(app.server)
+      .post('/login')
+      .send({
+        email: 'any_mail@mail.com',
+      })
+      .expect(400);
+  });
+
   it('Should return 401 if an user is not found', async () => {
     vi.spyOn(UserRepository.prototype, 'readUserByEmail').mockResolvedValueOnce(
       undefined,
