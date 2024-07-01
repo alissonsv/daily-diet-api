@@ -9,7 +9,8 @@
     "dev": "tsx watch src/server.ts",
     "knex": "node --import tsx ./node_modules/.bin/knex",
     "start": "node dist/src/server.cjs",
-    "test": "vitest"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "author": "Alisson Vargas <contato@alissonsv.com> (https://alissonsv.com)",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.0",
     "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "^1.6.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
